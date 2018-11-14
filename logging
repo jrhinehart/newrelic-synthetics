@@ -1,0 +1,58 @@
+// Logging Snippet Example //
+/** CONFIGURATIONS **/
+
+// Theshold for duration of entire script - fails test if script lasts longer than X (in ms)
+// Script-wide timeout for all wait and waitAndFind functions (in ms)
+var DefaultTimeout = 60000;
+// Change to any User Agent you want to use.
+// Leave as "default" or empty to use the Synthetics default.
+var UserAgent = "default";
+
+/** HELPER VARIABLES AND FUNCTIONS **/
+
+var assert = require('assert'),
+  By = $driver.By,
+  browser = $browser.manage(),
+  startTime = Date.now(),
+  stepStartTime = Date.now(),
+  prevMsg = '',
+  prevStep = 0,
+  lastStep = 9999,
+VARS = {};
+
+var log = function(thisStep, thisMsg) {
+  if (thisStep > 1 || thisStep == lastStep) {
+    var totalTimeElapsed = Date.now() - startTime;
+    var prevStepTimeElapsed = totalTimeElapsed - stepStartTime;
+    console.log('Step ' + prevStep + ': ' + prevMsg + ' FINISHED. It took ' + prevStepTimeElapsed + 'ms to complete.');
+    //$util.insights.set('Step ' + prevStep + ': ' + prevMsg, prevStepTimeElapsed);
+    if (DefaultTimeout > 0 && totalTimeElapsed > DefaultTimeout) {
+      throw new Error('Script timed out. ' + totalTimeElapsed + 'ms is longer than script timeout threshold of ' + DefaultTimeout + 'ms.');
+    }
+  }
+  if (thisStep > 0 && thisStep != lastStep) {
+    stepStartTime = Date.now() - startTime;
+    console.log('Step ' + thisStep + ': ' + thisMsg + ' STARTED at ' + stepStartTime + 'ms.');
+    prevMsg = thisMsg;
+    prevStep = thisStep;
+  }
+};
+
+// Usage
+
+// Step 1
+.then(function() {
+  log(1, '$browser.get("http://www.example.com/")');
+  return $browser.get("http://www.example.com/"); })
+})
+
+// This will create a Custom Attribute on the SyntheticCheck event for this monitor 
+// It will be named `custom.Step 1: $browser.get("https://www.example.com/")` and it's value will be the timing in ms for that step.
+
+// Script Log Output would then also contain:
+
+// Starting synthetics script: Example Script
+// Default timeout is set to 60 seconds
+// Variables set in this script:  {}
+// Step 1: $browser.get("https://www.example.com/") STARTED at 2ms.
+// Step 1: $browser.get("https://www.example.com/") FINISHED. It took 2666ms to complete.
