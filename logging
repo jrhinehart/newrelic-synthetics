@@ -25,7 +25,7 @@ var log = function(thisStep, thisMsg) {
     var totalTimeElapsed = Date.now() - startTime;
     var prevStepTimeElapsed = totalTimeElapsed - stepStartTime;
     console.log('Step ' + prevStep + ': ' + prevMsg + ' FINISHED. It took ' + prevStepTimeElapsed + 'ms to complete.');
-    //$util.insights.set('Step ' + prevStep + ': ' + prevMsg, prevStepTimeElapsed);
+    $util.insights.set('Step ' + prevStep + ': ' + prevMsg, prevStepTimeElapsed);
     if (DefaultTimeout > 0 && totalTimeElapsed > DefaultTimeout) {
       throw new Error('Script timed out. ' + totalTimeElapsed + 'ms is longer than script timeout threshold of ' + DefaultTimeout + 'ms.');
     }
